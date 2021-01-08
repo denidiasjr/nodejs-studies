@@ -22,7 +22,19 @@ const server = http.createServer((req, res) => {
   }
 
   if (url === '/message' && method === 'POST') {
-    fs.writeFileSync('message.txt', "MEU TEXTO TOP");
+    const body = [];
+
+    req.on('data', chunk => {
+      body.push(chunk);
+    });
+    
+    req.on('end', () => {
+      const parsedBody = Buffer.concat(body).toString();
+      const message = parsedBody.split('=')[1];
+      console.log({ body, parsedBody, message });
+      fs.writeFileSync('message.txt', message);
+    });
+
     res.statusCode = 302;
     res.setHeader('Location', '/');
     return res.end();
